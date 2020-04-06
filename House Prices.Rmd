@@ -1,0 +1,27 @@
+---
+title: "House Prices"
+output: html_document
+---
+
+#Libraries
+```{r}
+library(readr)
+
+```
+
+#Import data
+```{r}
+train <- read.csv('train.csv')
+test <- read.csv('test.csv')
+```
+
+#Merge train and test sets to fill in missing data
+```{r}
+temp_train <- train[,-81]
+full <- rbind(temp_train, test)
+```
+
+```{r}
+
+
+```
