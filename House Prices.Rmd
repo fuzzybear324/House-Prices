@@ -6,22 +6,28 @@ output: html_document
 #Libraries
 ```{r}
 library(readr)
-
+library(ggplot2)
 ```
 
 #Import data
 ```{r}
-train <- read.csv('train.csv')
-test <- read.csv('test.csv')
+train <- read.csv('train.csv', stringsAsFactors = FALSE)
+test <- read.csv('test.csv', stringsAsFactors = FALSE)
 ```
 
-#Merge train and test sets to fill in missing data
+#Before we get too far in lets first establish in our mind a baseline of which variables will be most important in determining sales price. We are going to check only the numeric variables for now and compare their correlation with sales price. 
+
+
+#Merge train and test sets to fill in missing data all at once.
 ```{r}
 temp_train <- train[,-81]
 full <- rbind(temp_train, test)
 ```
 
+#Looking at missing data and seeing how bad it is
 ```{r}
-
-
+NAcol <- which(colSums(is.na(full)) > 0)
+sort(colSums(sapply(full[NAcol], is.na)), decreasing = TRUE)
 ```
+There's a lot of columns with missing data so we need to be smart with how we fill this in. There's also not that much data, so if we just start lopping rows off we'll lose too much data.
+
