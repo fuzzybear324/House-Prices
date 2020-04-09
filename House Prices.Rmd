@@ -7,6 +7,10 @@ output: html_document
 ```{r}
 library(readr)
 library(ggplot2)
+library(gridExtra)
+library(ggrepel)
+library(scales)
+library(corrplot)
 ```
 
 #Import data
@@ -15,8 +19,36 @@ train <- read.csv('train.csv', stringsAsFactors = FALSE)
 test <- read.csv('test.csv', stringsAsFactors = FALSE)
 ```
 
-#Before we get too far in lets first establish in our mind a baseline of which variables will be most important in determining sales price. We are going to check only the numeric variables for now and compare their correlation with sales price. 
+#Let's take a quick look at the sales prices 
+```{r}
+ggplot(data = train, aes(x = SalePrice)) +
+  geom_histogram(fill = 'blue', binwidth = 10000) +
+  scale_x_continuous(breaks= seq(0, 800000, by=100000), labels = comma)
 
+```
+The sales data is right skewed like we thought since fewer people can afford the more expensive houses. 
+
+#Before we get too far in lets first establish in our mind a baseline of which variables will be most important in determining sales price. We are going to check only the numeric variables for now and compare their correlation with sales price. 
+```{r}
+numeric_vars <- which(sapply(train, is.numeric))
+train_numeric <- train[,numeric_vars]
+
+#get correlations of all numeric variables
+cor_numeric <- cor(train_numeric, use = "pairwise.complete.obs")
+
+#sort on decreasing correlations
+cor_sorted <- as.matrix(sort(cor_numeric[,'SalePrice'], decreasing = TRUE))
+
+#select only high correlations
+cor_numeric_high <- names(which(apply(cor_sorted, 1, function(x) abs(x)>0.5)))
+cor_numeric <- cor_numeric[cor_numeric_high,cor_numeric_high]
+
+corrplot.mixed(cor_numeric, tl.col="black", tl.pos = "lt")
+```
+There's a lot of multicollinearity stuck in there, but the main takeaways should be that the two most correlated variables are overall quality and above grade living area. 
+
+
+Now let's get to filling in missing data.
 
 #Merge train and test sets to fill in missing data all at once.
 ```{r}
