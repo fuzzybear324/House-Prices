@@ -63,3 +63,93 @@ sort(colSums(sapply(full[NAcol], is.na)), decreasing = TRUE)
 ```
 There's a lot of columns with missing data so we need to be smart with how we fill this in. There's also not that much data, so if we just start lopping rows off we'll lose too much data.
 
+We are going to start by filling in data that has the most missing and go in that order. We are also going to convert character variables to factors while we are here
+
+```{r}
+#PoolQC
+full$PoolQC[is.na(full$PoolQC)] <- 'None'
+full$PoolQC <- as.factor(full$PoolQC)
+
+summary(full$PoolQC)
+#since pools with n/a just don't have pools
+```
+
+```{r}
+#MiscFeature
+full$MiscFeature[is.na(full$MiscFeature)] <- 'None'
+full$MiscFeature <- as.factor(full$MiscFeature)
+
+summary(full$MiscFeature)
+#same thing with Misc Feature
+```
+
+```{r}
+#Alley
+full$Alley[is.na(full$Alley)] <- 'No alley access'
+full$Alley <- as.factor(full$Alley)
+
+summary(full$Alley)
+
+#these just don't have alleys
+```
+
+```{r}
+#Fence
+full$Fence[is.na(full$Fence)] <- 'No fence'
+full$Fence <- as.factor(full$Fence)
+
+table(full$Fence)
+
+```
+
+```{r}
+#FireplaceQu
+full$FireplaceQu[is.na(full$FireplaceQu)] <- 'No fireplace'
+full$FireplaceQu <- as.factor(full$FireplaceQu)
+
+summary(full$FireplaceQu)
+```
+
+```{r}
+#Lot Frontage
+sum(is.na(full$LotFrontage))
+#486 na values. We are going to fill these in with the median lot frontage values of the corresponding neighborhood
+
+ggplot(full[!is.na(full$LotFrontage),], 
+       aes(x = as.factor(Neighborhood), 
+           y = LotFrontage)) +
+  geom_bar(stat = 'summary', fun.y = 'median', fill = 'blue') +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+for(i in 1:nrow(full)) {
+  if(is.na(full$LotFrontage[i])){
+    full$LotFrontage[i] <- as.integer(median(full$LotFrontage[full$Neighborhood == full$Neighborhood[i]], na.rm = TRUE))
+  }
+}
+```
+
+Also going to convert the other lot variables here as well to factors if necessary
+```{r}
+full$LotShape <- as.factor(full$LotShape)
+full$LotConfig <- as.factor(full$LotConfig)
+```
+
+#Garage Variables
+Now we're going to take a look at the garage variables. 
+
+First we're going to replace the missing garage year built with the year the house was built
+```{r}
+full$GarageYrBlt[is.na(full$GarageYrBlt)] <- full$YearBuilt[is.na(full$GarageYrBlt)]
+```
+
+```{r}
+
+
+```
+
+
+
+
+
+
+
