@@ -5,6 +5,7 @@ output: html_document
 
 #Libraries
 ```{r}
+library(knitr)
 library(readr)
 library(ggplot2)
 library(gridExtra)
@@ -142,14 +143,47 @@ First we're going to replace the missing garage year built with the year the hou
 full$GarageYrBlt[is.na(full$GarageYrBlt)] <- full$YearBuilt[is.na(full$GarageYrBlt)]
 ```
 
+There is a problem. There are 157 na's for garage type, but 159 for the other three garage variables. That means there are 2 rows that are missing data that we need to manually check.
+```{r}
+kable(full[!is.na(full$GarageType) & is.na(full$GarageFinish), c('GarageCars', 'GarageArea', 'GarageType', 'GarageCond', 'GarageQual', 'GarageFinish')])
+```
+2127 Does seem to have a garage, but 2577 does not. To fix 2127, we will replace the 3 na's with the mode of each variable
+
+```{r}
+full$GarageCond[2127] <- names(sort(-table(full$GarageCond)))[1]
+full$GarageQual[2127] <- names(sort(-table(full$GarageQual)))[1]
+full$GarageFinish[2127] <- names(sort(-table(full$GarageFinish)))[1]
+```
+
+For 2577, it seems the problem is that the garage is detached, which is why the other variables say the house has no garage. 
+So we'll just fix that manually
+```{r}
+full$GarageCars[2577] <- 0
+full$GarageArea[2577] <- 0
+full$GarageType[2577] <- NA
+```
+
+
+Now we check to make sure there are only 158 NA's for character variables
+
+```{r}
+length(which(is.na(full$GarageType) & is.na(full$GarageFinish) & is.na(full$GarageCond) & is.na(full$GarageQual)))
+```
+From here we clean up the rest of the garage variables
+
+
+
+
+
+
+
+
+
+
+
+
+#
 ```{r}
 
 
 ```
-
-
-
-
-
-
-
